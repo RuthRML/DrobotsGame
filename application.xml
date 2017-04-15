@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- This file was written by IceGrid Admin -->
+<icegrid>
+   <application name="crobots">
+      <node name="nododos">
+         <server id="Factoria1" activation="always" exe="./RobotController.py" pwd="/tmp/Distribuidos">
+            <properties>
+            </properties>
+            <adapter name="FactoriaAdapter" endpoints="tcp" id="${server}.FactoriaAdapter">
+               <object identity="RobotFactory1" type="::drobots::Factory" property="Identity"/>
+            </adapter>
+         </server>
+      </node>
+      <node name="nodotres">
+         <server id="Factoria2" activation="always" exe="./RobotController.py" pwd="/tmp/Distribuidos">
+            <properties>
+            </properties>
+            <adapter name="FactoriaAdapter" endpoints="tcp" id="${server}.FactoriaAdapter">
+               <object identity="RobotFactory2" type="::drobots::factory" property="Identity"/>
+            </adapter>
+         </server>
+      </node>
+      <node name="nodouno">
+         <server id="Cliente" activation="manual" exe="./Cliente.py" pwd="/tmp/Distribuidos">
+            <properties>
+               <property name="Game" value="drobots0"/>
+               <property name="Game.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
+            </properties>
+            <adapter name="ContainerAdapter" endpoints="tcp" id="${server}.ContainerAdapter">
+               <object identity="Container" type="::Services::Container" property="Identity"/>
+               <object identity="Robots" type="::Services::Container" property="Identity"/>
+            </adapter>
+            <adapter name="PlayerAdapter" endpoints="tcp" id="${server}.PlayerAdapter">
+               <object identity="Ruth" type="::drobots::Player" property="Identity"/>
+            </adapter>
+         </server>
+         <server id="Factoria3" activation="always" exe="./RobotController.py" pwd="/tmp/Distribuidos">
+            <properties>
+            </properties>
+            <adapter name="FactoriaAdapter" endpoints="tcp" id="${server}.FactoriaAdapter">
+               <object identity="RobotFactory3" type="::drobots::Factory" property="Identity"/>
+            </adapter>
+         </server>
+      </node>
+   </application>
+</icegrid>
