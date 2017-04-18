@@ -56,19 +56,16 @@ class RobotControllerDefensa(drobots.RobotController, drobotsCoordinados.Coordin
                 xdestino = random.randint(10,399)
                 ydestino = random.randint(10,399)
                 coordenadasactuales = self.robot.location()
-                #x = coordenadasactuales.x
-                #y = coordenadasactuales.y
                 xrelativo = xdestino - coordenadasactuales.x
                 yrelativo = ydestino - coordenadasactuales.y
-                #distancia = int(math.sqrt((x-xmov)**2+(y-ymov)**2))
                 distancia = math.hypot(xrelativo, yrelativo)
-                print("Cambiando posición a %s" % distancia)
+                print("Cambiando posición a una distancia de %s" % distancia)
                 nuevoangulo = int(math.degrees(math.atan2(xrelativo, yrelativo)) % 360.0)
                 velocidad = 100
                 if(distancia < 10):
                     velocidad = max(min(100, self.robot.speed() / (10 - distancia)), 1)
-                if(distancia>0):
-                    self.robot.drive(nuevoangulo,velocidad)
+                if(distancia > 0):
+                    self.robot.drive(nuevoangulo, velocidad)
                 else:
                     self.robot.drive(0,0)
                     return
@@ -77,6 +74,9 @@ class RobotControllerDefensa(drobots.RobotController, drobotsCoordinados.Coordin
         print("Robot destruido.")
 
     def EnemigoDetectado(self, anguloenemigo,  current=None):
+        None
+
+    def PosicionDetector(self, destino, current=None):
         None
 
 class RobotControllerAtaque(drobots.RobotController, drobotsCoordinados.Coordinacion):
@@ -101,13 +101,10 @@ class RobotControllerAtaque(drobots.RobotController, drobotsCoordinados.Coordina
                 xdestino = random.randint(10,399)
                 ydestino = random.randint(10,399)
                 coordenadasactuales = self.robot.location()
-                #x = coordenadasactuales.x
-                #y = coordenadasactuales.y
                 xrelativo = xdestino - coordenadasactuales.x
                 yrelativo = ydestino - coordenadasactuales.y
-                #distancia = int(math.sqrt((x-xmov)**2+(y-ymov)**2))
                 distancia = math.hypot(xrelativo, yrelativo)
-                print("Cambiando posición a %s" % distancia)
+                print("Cambiando posición a una distancia de %s" % distancia)
                 nuevoangulo = int(math.degrees(math.atan2(xrelativo, yrelativo)) % 360.0)
                 velocidad = 100
                 if(distancia < 10):
@@ -122,8 +119,19 @@ class RobotControllerAtaque(drobots.RobotController, drobotsCoordinados.Coordina
         print("Robot destruido.")
 
     def EnemigoDetectado(self, anguloenemigo, current=None):
-        print("Enemigo detectado")
+        print("Enemigo(s) detectado(s)")
         self.angulo=anguloenemigo
+
+    def PosicionDetector(self, destino, current=None):
+        print("Enemigo(s) detectado(s)")
+        xdestino = destino.x
+        ydestino = destino.y
+        coordenadasactuales = self.robot.location()
+        xrelativo = xdestino - coordenadasactuales.x
+        yrelativo = ydestino - coordenadasactuales.y
+        anguloenemigos = int(math.degrees(math.atan2(xrelativo, yrelativo)) % 360.0)
+        self.angulo = anguloenemigos
+
 
 class Nodo(Ice.Application):
     def run(self, argv):
