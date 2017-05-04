@@ -15,6 +15,8 @@ import math
 import random
 
 class RobotFactory(drobots.RobotFactory):
+    self.detector = None
+
     def make(self, bot, contador, current=None):
         if (bot.ice_isA("::drobots::Attacker")):
             sirviente = RobotControllerAtaque(bot, contador)
@@ -24,6 +26,14 @@ class RobotFactory(drobots.RobotFactory):
         proxyDirecto = current.adapter.createDirectProxy(proxy.ice_getIdentity())
         robot=drobots.RobotControllerPrx.checkedCast(proxyDirecto)
         return robot
+
+    def makeDetector(self, current=None):
+        if (detector == None):
+            sirviente = DetectorController()
+            proxy_detector = current.adapter.addWithUUID(sirviente)
+            proxyDirecto = current.adapter.createDirectProxy(proxy_detector.ice_getIdentity())
+            self.detector = drobots.DetectorControllerPrx.checkedCast(proxyDirecto)
+        return self.detector
 
 class RobotControllerDefensa(drobots.RobotController, drobotsCoordinados.Coordinacion):
     def __init__(self, bot, contador):
@@ -35,6 +45,7 @@ class RobotControllerDefensa(drobots.RobotController, drobotsCoordinados.Coordin
 
     def turn(self, current=None):
         self.turnos = self.turnos+1
+        print ("Turno" + self.turnos)
         proxyContainer = current.adapter.getCommunicator().stringToProxy("Robots")
         container = Services.ContainerPrx.checkedCast(proxyContainer)
         async = container.begin_listCoordinar()
@@ -89,6 +100,7 @@ class RobotControllerAtaque(drobots.RobotController, drobotsCoordinados.Coordina
 
     def turn(self, current=None):
         self.turnos = self.turnos + 1
+        print ("Turno" + self.turnos)
         if(self.robot.damage()==100):
             self.robotDestroyed()
         else:
@@ -132,6 +144,35 @@ class RobotControllerAtaque(drobots.RobotController, drobotsCoordinados.Coordina
         anguloenemigos = int(math.degrees(math.atan2(xrelativo, yrelativo)) % 360.0)
         self.angulo = anguloenemigos
 
+class DetectorController(drobots.DetectorController, drobotsCoordinados.Coordinacion):
+    def __init__(self, current=None):
+        print("Detector creado.")
+
+    def alert(self, posicion, enemigos, current=None):
+        flag = True
+        posicion_relativa = posicion
+        derecha_x = posicion.x-80
+        izquierda_x = posicion.x+80
+        derecha_y = posicion.y-80
+        izquierda_y = posicion.y+80
+        rango_x = range(derecha_x, izquierda_x)
+        rango_y = range(derecha_y, izquierda_y)
+        proxyContainer = current.adapter.getCommunicator().stringToProxy("Robots")
+        container = Services.ContainerPrx.checkedCast(proxyContainer)
+        async = container.begin_listCoordinar()
+        robots = container.end_listCoordinar(async)
+        for bot in robots:
+            for x in list(rango_x):
+                for y in list(rango_y):
+                    posicion_relativa.x = posicion_relativa.x + 1
+                    posicion_relativa.y = posicion_relativa.y + 1
+                    if(posicion_relativa == bot.location()):
+                        flag = False
+        if flag:
+            ataque = drobots2.CoordinacionPrx.uncheckedCast(robots["3"]) # Robot de ataque key = 3
+            ataque2 = drobots2.CoordinacionPrx.uncheckedCast(robots["4"]) # Robot de ataque key = 4
+            ataque.PosicionDetector(posicion)
+            ataque2.PosicionDetector(posicion)
 
 class Nodo(Ice.Application):
     def run(self, argv):

@@ -41,11 +41,11 @@
                <object identity="RobotFactory3" type="::drobots::Factory" property="Identity"/>
             </adapter>
          </server>
-         <server id="Factoria4" activation="always" exe="/.DetectorController.py" pwd="/tmp/Distribuidos">
+         <server id="Factoria4" activation="always" exe="./RobotController.py" pwd="/tmp/Distribuidos">
             <properties>
             </properties>
             <adapter name="FactoriaAdapter" endpoints="tcp" id="${server}.FactoriaAdapter">
-               <object identity="DetectorFactory" type="::drobots::Factory" property="Identity"/>
+               <object identity="RobotFactory4" type="::drobots::Factory" property="Identity"/>
             </adapter>
          </server>
       </node>

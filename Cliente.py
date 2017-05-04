@@ -25,7 +25,7 @@ class Player(drobots.Player):
         print("Creando un RobotController...")
         proxiesContainer, keys=self.container.list()
         factoriarobot = drobots.RobotFactoryPrx.uncheckedCast(proxiesContainer[keys[self.contadorFactoria]])
-        if self.contadorFactoria<2: # Tenemos 3 factorias
+        if self.contadorFactoria<4: # Tenemos 3 factorias para robots
             self.contadorFactoria= self.contadorFactoria + 1
         self.contadorRobots=self.contadorRobots + 1
         robot = factoriarobot.make(bot, self.contadorRobots)
@@ -34,9 +34,10 @@ class Player(drobots.Player):
 
     def makeDetectorController(self, current=None):
         print("Creando un DetectorController...")
+        #self.contadorFactoria= self.contadorFactoria + 1 # Factoria para el detector
         proxiesContainer, keys=self.container.list()
-        factoriaDetector = drobots.DetectorFactoryPrx.uncheckedCast(proxiesContainer[keys[self.contadorFactoria]])
-        detector = factoriaDetector.make()
+        factoria = drobots.RobotFactoryPrx.uncheckedCast(proxiesContainer[keys[3]])
+        detector = factoria.makeDetector()
         return detector
 
     def win(self, current=None):

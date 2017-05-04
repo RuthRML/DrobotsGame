@@ -15,8 +15,8 @@ import math
 import random
 
 class DetectorFactory(drobots.RobotFactory):
-    def __init__(self, current=None):
-        self.detector = None
+    #def __init__(self, current=None):
+    self.detector = None
 
     def make(self, current=None):
         if (detector == None):
