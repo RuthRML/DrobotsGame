@@ -15,7 +15,8 @@ import math
 import random
 
 class RobotFactory(drobots.RobotFactory):
-    self.detector = None
+    def __init__(self):
+        self.detector = None
 
     def make(self, bot, contador, current=None):
         if (bot.ice_isA("::drobots::Attacker")):
@@ -28,7 +29,7 @@ class RobotFactory(drobots.RobotFactory):
         return robot
 
     def makeDetector(self, current=None):
-        if (detector == None):
+        if (self.detector == None):
             sirviente = DetectorController()
             proxy_detector = current.adapter.addWithUUID(sirviente)
             proxyDirecto = current.adapter.createDirectProxy(proxy_detector.ice_getIdentity())
@@ -45,7 +46,6 @@ class RobotControllerDefensa(drobots.RobotController, drobotsCoordinados.Coordin
 
     def turn(self, current=None):
         self.turnos = self.turnos+1
-        print ("Turno" + self.turnos)
         proxyContainer = current.adapter.getCommunicator().stringToProxy("Robots")
         container = Services.ContainerPrx.checkedCast(proxyContainer)
         async = container.begin_listCoordinar()
@@ -59,8 +59,8 @@ class RobotControllerDefensa(drobots.RobotController, drobotsCoordinados.Coordin
             robotsencontrados = self.robot.scan(self.angulo, wide)
             if(robotsencontrados>0):
                 print("Enemigo(s) encontrado.")
-                atac = drobots2.CoordinacionPrx.uncheckedCast(robots["3"]) # Robot de ataque key = 3
-                atac2 = drobots2.CoordinacionPrx.uncheckedCast(robots["4"]) # Robot de ataque key = 4
+                atac = drobotsCoordinados.CoordinacionPrx.uncheckedCast(robots["3"]) # Robot de ataque key = 3
+                atac2 = drobotsCoordinados.CoordinacionPrx.uncheckedCast(robots["4"]) # Robot de ataque key = 4
                 atac.EnemigoDetectado(self.angulo)
                 atac2.EnemigoDetectado(self.angulo)
             elif(robotsencontrados==0 and self.robot.energy()>=62):
@@ -100,7 +100,6 @@ class RobotControllerAtaque(drobots.RobotController, drobotsCoordinados.Coordina
 
     def turn(self, current=None):
         self.turnos = self.turnos + 1
-        print ("Turno" + self.turnos)
         if(self.robot.damage()==100):
             self.robotDestroyed()
         else:
@@ -169,8 +168,8 @@ class DetectorController(drobots.DetectorController, drobotsCoordinados.Coordina
                     if(posicion_relativa == bot.location()):
                         flag = False
         if flag:
-            ataque = drobots2.CoordinacionPrx.uncheckedCast(robots["3"]) # Robot de ataque key = 3
-            ataque2 = drobots2.CoordinacionPrx.uncheckedCast(robots["4"]) # Robot de ataque key = 4
+            ataque = drobotsCoordinados.CoordinacionPrx.uncheckedCast(robots["3"]) # Robot de ataque key = 3
+            ataque2 = drobotsCoordinados.CoordinacionPrx.uncheckedCast(robots["4"]) # Robot de ataque key = 4
             ataque.PosicionDetector(posicion)
             ataque2.PosicionDetector(posicion)
 
