@@ -61,9 +61,4 @@ module drobots {
       throws InvalidName, BadNumberOfPlayers;
   };
 
-  interface RobotFactory{
-    RobotController* make(Robot* bot, int cont);
-    DetectorController* makeDetector();
-  };
-
 };

@@ -23,7 +23,7 @@
       <node name="nodouno">
          <server id="Cliente" activation="manual" exe="./Cliente.py" pwd="/tmp/Distribuidos">
             <properties>
-               <property name="Game" value="drobots0"/>
+               <property name="Game" value="drobots8"/>
                <property name="Game.Locator" value="IceGrid/Locator -t:tcp -h atclab.esi.uclm.es -p 4061"/>
             </properties>
             <adapter name="ContainerAdapter" endpoints="tcp" id="${server}.ContainerAdapter">
@@ -41,7 +41,7 @@
                <object identity="RobotFactory3" type="::drobots::Factory" property="Identity"/>
             </adapter>
          </server>
-         <server id="Factoria4" activation="always" exe="./RobotController.py" pwd="/tmp/Distribuidos">
+         <server id="Factoria4" activation="always" exe="./DetectorController.py" pwd="/tmp/Distribuidos">
             <properties>
             </properties>
             <adapter name="FactoriaAdapter" endpoints="tcp" id="${server}.FactoriaAdapter">

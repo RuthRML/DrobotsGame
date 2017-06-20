@@ -2,13 +2,10 @@
 
 module drobotsCoordinados{
 
-  struct Point {
-    int x;
-    int y;
-  };
-
   interface Coordinacion{
-    void EnemigoDetectado(int angulo);
-    void PosicionDetector(Point destino);
+    void enemigoDetectado(int angulo);
+    void posicionDetector(int posx, int posy);
+    int localizacionx();
+    int localizaciony();
   };
 };

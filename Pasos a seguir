@@ -1,7 +1,5 @@
 1. Hacemos make dentro de la carpeta donde están los archivos.
 2. Abrimos icegridgui
-3. Definimos el working directory (/tmp/Distribuidos)
-4. Guardamos en registro
 5. Ejecutamos el nodo cliente
 
 Autoras: Lucia Calzado Piedrabuena y Ruth Rodríguez-Manzaneque López
