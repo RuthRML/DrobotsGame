@@ -20,7 +20,7 @@ class Player(drobots.Player):
         self.factorias = factorias
         self.factoriadetector = detector
         self.container2 = containerRobots # Container de robots.
-        self.contadorRobots = 1 # Contador para id de robot.
+        self.contadorRobots = 0 # Contador para id de robot.
         self.contadorFactoria = 0 # Contado para factorias.
 
     def makeController(self, bot, current=None):
@@ -64,7 +64,6 @@ class Cliente(Ice.Application):
         adapter = broker.createObjectAdapter("PlayerAdapter")
         adapter2 = broker.createObjectAdapter("ContainerAdapter")
 
-        #containerFactorias = Container.Container()
         containerRobots = Container.Container()
 
         factorias_robot_identity = ["RobotFactory1", "RobotFactory2", "RobotFactory3"]
@@ -78,8 +77,8 @@ class Cliente(Ice.Application):
         factoria_detector = drobots.DetectorFactoryPrx.checkedCast(detector_proxy)
 
         sirviente = Player(adapter, factorias_robot, factoria_detector, containerRobots)
-        #adapter2.add(containerFactorias, broker.stringToIdentity("Container"))
         adapter2.add(containerRobots, broker.stringToIdentity("Robots"))
+
 
         proxyPlayer = adapter.add(sirviente, broker.stringToIdentity("Player"))
         proxyDirecto = adapter.createDirectProxy(proxyPlayer.ice_getIdentity())
