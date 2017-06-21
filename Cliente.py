@@ -18,30 +18,23 @@ class Player(drobots.Player):
     def __init__(self, adapter, factorias, detector, containerRobots):
         self.adapter = adapter
         self.factorias = factorias
-        self.factoriadetector = detector
-        self.container2 = containerRobots # Container de robots.
-        self.contadorRobots = 0 # Contador para id de robot.
-        self.contadorFactoria = 0 # Contado para factorias.
+        self.factoriadetector = detector 
+        self.container2 = containerRobots 
+        self.contadorRobots = 0 
+        self.contadorFactoria = 0 
 
     def makeController(self, bot, current=None):
         print("Creando un RobotController... con factoria "+str(self.contadorFactoria))
-        #proxiesContainer, keys=self.container.list()
-        #factoriarobot = drobots.RobotFactoryPrx.uncheckedCast(proxiesContainer[keys[self.contadorFactoria]])
-        #factoriarobot = drobots.RobotFactoryPrx.uncheckedCast(proxiesContainer[str(self.contadorFactoria)])
         robot = self.factorias[self.contadorFactoria].make(bot, self.contadorRobots)
-        #if self.contadorFactoria<3: # Tenemos 3 factorias para robots
         self.contadorFactoria= (self.contadorFactoria + 1) % 3
         self.contadorRobots=self.contadorRobots + 1
-        #robot = factoriarobot.make(bot, self.contadorRobots)
+
+        # Introducir robots en Container
         self.container2.link(str(self.contadorRobots), robot)
         return robot
 
     def makeDetectorController(self, current=None):
         print("Creando un DetectorController...")
-        #self.contadorFactoria= self.contadorFactoria + 1 # Factoria para el detector
-        #proxiesContainer, keys=self.container.list()
-        #factoria = drobots.DetectorFactoryPrx.uncheckedCast(proxiesContainer["51"]) # Comprobar que factoria lleva detectorController.py
-        #detector = factoria.makeDetector()
         detector = self.factoriadetector.makeDetector()
         return detector
 
@@ -66,6 +59,7 @@ class Cliente(Ice.Application):
 
         containerRobots = Container.Container()
 
+        # Factorias para controladores de robot
         factorias_robot_identity = ["RobotFactory1", "RobotFactory2", "RobotFactory3"]
         factorias_robot = []
 
@@ -73,12 +67,12 @@ class Cliente(Ice.Application):
             factory_proxy = broker.stringToProxy(factorias_identity)
             factorias_robot.append(drobots.RobotFactoryPrx.checkedCast(factory_proxy))
 
+        # Factoria para controlador de detector
         detector_proxy = broker.stringToProxy("RobotFactory4")
         factoria_detector = drobots.DetectorFactoryPrx.checkedCast(detector_proxy)
 
         sirviente = Player(adapter, factorias_robot, factoria_detector, containerRobots)
         adapter2.add(containerRobots, broker.stringToIdentity("Robots"))
-
 
         proxyPlayer = adapter.add(sirviente, broker.stringToIdentity("Player"))
         proxyDirecto = adapter.createDirectProxy(proxyPlayer.ice_getIdentity())

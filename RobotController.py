@@ -20,12 +20,13 @@ class RobotFactory(drobots.RobotFactory):
         self.detector = None
 
     def make(self, bot, contador, current=None):
-        if(bot.ice_isA("::drobots::Attacker")):
-            sirviente = RobotControllerAtaque(bot, contador)
-        elif(bot.ice_isA("::drobots::Defender")):
-            sirviente = RobotControllerDefensa(bot, contador)
-        else:
+        interfaz = bot.ice_id()
+        if(interfaz =="::drobots::Robot"):
             sirviente = RobotControllerBase(bot, contador)
+        elif(interfaz == "::drobots::Attacker"):
+            sirviente = RobotControllerAtaque(bot, contador)
+        elif(interfaz == "::drobots::Defender"):
+            sirviente = RobotControllerDefensa(bot, contador)
         proxy = current.adapter.addWithUUID(sirviente)
         proxyDirecto = current.adapter.createDirectProxy(proxy.ice_getIdentity())
         robot = drobots.RobotControllerPrx.uncheckedCast(proxyDirecto)
@@ -42,7 +43,7 @@ class RobotControllerBase(drobots.RobotController, drobotsCoordinados.Coordinaci
 
     def turn(self, current=None):
         self.turnos = self.turnos+1
-        self.posicionactual = self.robot.location()
+        self.posicionactual = self.robot.location() # 1 energy
         proxyContainer = current.adapter.getCommunicator().stringToProxy("Robots")
         container = Services.ContainerPrx.checkedCast(proxyContainer)
         async = container.begin_listCoordinar()
@@ -51,34 +52,22 @@ class RobotControllerBase(drobots.RobotController, drobotsCoordinados.Coordinaci
             self.robotDestroyed()
         else:
             print("Robot"+str(self.id)+" escaneando...")
-            self.angulo = int(math.degrees(random.randint(0,359)) % 360.0)
+            if(self.turnos == 0):
+                self.angulo = int(math.degrees(random.randint(0,359)) % 360.0)
             wide = random.randint(1,20)
-            robotsencontrados = self.robot.scan(self.angulo, wide)
+            robotsencontrados = self.robot.scan(self.angulo, wide) 
             if(robotsencontrados>0):
-                atac = drobotsCoordinados.CoordinacionPrx.uncheckedCast(robots["3"]) # Robot de ataque key = 3
-                atac2 = drobotsCoordinados.CoordinacionPrx.uncheckedCast(robots["4"]) # Robot de ataque key = 4
+                # Coordinacion
+                atac1 = drobotsCoordinados.CoordinacionPrx.uncheckedCast(robots["2"])
+                atac = drobotsCoordinados.CoordinacionPrx.uncheckedCast(robots["3"])
+                atac2 = drobotsCoordinados.CoordinacionPrx.uncheckedCast(robots["4"])
+                atac1.enemigoDetectado(self.angulo)
                 atac.enemigoDetectado(self.angulo)
                 atac2.enemigoDetectado(self.angulo)
                 print("Robot"+str(self.id)+" atacando...")
                 distancia = random.randint(0,200)
-                self.robot.cannon(self.angulo, distancia)
-            elif(robotsencontrados==0 and self.robot.energy()>=61):
-                xdestino = random.randint(10,399)
-                ydestino = random.randint(10,399)
-                coordenadasactuales = self.posicionactual
-                xrelativo = xdestino - coordenadasactuales.x
-                yrelativo = ydestino - coordenadasactuales.y
-                distancia = math.hypot(xrelativo, yrelativo)
-                print("Robot"+str(self.id)+" cambiando posición a una distancia de %s" % distancia)
-                nuevoangulo = int(math.degrees(math.atan2(xrelativo, yrelativo)) % 360.0)
-                velocidad = 100
-                if(distancia < 10):
-                    velocidad = max(min(100, self.robot.speed() / (10 - distancia)), 1)
-                if(distancia > 0):
-                    self.robot.drive(nuevoangulo, velocidad)
-                else:
-                    self.robot.drive(0,0)
-                    return
+                if(self.robot.energy()>=50):
+                    self.robot.cannon(self.angulo, distancia)
 
     def robotDestroyed(self, current=None):
         print("Robot"+str(self.id)+" destruido.")
@@ -86,7 +75,7 @@ class RobotControllerBase(drobots.RobotController, drobotsCoordinados.Coordinaci
     def enemigoDetectado(self, anguloenemigo, current=None):
         print("Coordinacion: Robot"+str(self.id)+" girando hacia los enemigo(s) detectado(s)")
         self.angulo=anguloenemigo
-        if(self.robot.energy() >= 51):
+        if(self.robot.energy() >= 50):
             self.robot.cannon(self.angulo, 100)
 
     def posicionDetector(self, posx, posy, current=None):
@@ -98,7 +87,7 @@ class RobotControllerBase(drobots.RobotController, drobotsCoordinados.Coordinaci
         yrelativo = ydestino - coordenadasactuales.y
         anguloenemigos = int(math.degrees(math.atan2(xrelativo, yrelativo)) % 360.0)
         self.angulo = anguloenemigos
-        if(self.robot.energy() >= 51):
+        if(self.robot.energy() >= 50):
             self.robot.cannon(self.angulo, 100)
 
     def localizacionx(self, current=None):
@@ -132,6 +121,7 @@ class RobotControllerDefensa(drobots.RobotController, drobotsCoordinados.Coordin
             robotsencontrados = self.robot.scan(self.angulo, wide) 
             if(robotsencontrados>0):
                 print("Robot"+str(self.id)+" ha encontrado enemigo(s).")
+                # Coordinacion
                 atac = drobotsCoordinados.CoordinacionPrx.uncheckedCast(robots["3"]) # Robot de ataque key = 3
                 atac2 = drobotsCoordinados.CoordinacionPrx.uncheckedCast(robots["4"]) # Robot de ataque key = 4
                 atac.enemigoDetectado(self.angulo)
@@ -152,7 +142,6 @@ class RobotControllerDefensa(drobots.RobotController, drobotsCoordinados.Coordin
                     self.robot.drive(nuevoangulo, velocidad)
                 else:
                     self.robot.drive(0,0)
-                    return
 
     def robotDestroyed(self, current=None):
         print("Robot"+str(self.id)+" destruido.")
@@ -188,25 +177,8 @@ class RobotControllerAtaque(drobots.RobotController, drobotsCoordinados.Coordina
             distancia = random.randint(0,200)
             if(self.angulo==0):
                 self.angulo = int(math.degrees(random.randint(0,359)) % 360.0)
-            self.robot.cannon(self.angulo, distancia)
-            return
-            #if(self.robot.energy()>=61):
-                #xdestino = random.randint(10,399)
-                #ydestino = random.randint(10,399)
-                #coordenadasactuales = self.posicionactual
-                #xrelativo = xdestino - coordenadasactuales.x
-                #yrelativo = ydestino - coordenadasactuales.y
-                #distancia = math.hypot(xrelativo, yrelativo)
-                #print("Robot"+str(self.id)+" cambiando posición a una distancia de %s" % distancia)
-                #nuevoangulo = int(math.degrees(math.atan2(xrelativo, yrelativo)) % 360.0)
-                #velocidad = 100
-                #if(distancia < 10):
-                    #velocidad = max(min(100, self.robot.speed() / (10 - distancia)), 1)
-                #if(distancia>0):
-                    #self.robot.drive(nuevoangulo,velocidad)
-                #else:
-                    #self.robot.drive(0,0)
-                    #return
+            if(self.robot.energy()>=50):
+                self.robot.cannon(self.angulo, distancia)
 
     def robotDestroyed(self, current=None):
         print("Robot"+str(self.id)+" destruido.")
@@ -214,7 +186,7 @@ class RobotControllerAtaque(drobots.RobotController, drobotsCoordinados.Coordina
     def enemigoDetectado(self, anguloenemigo, current=None):
         print("Coordinacion: Robot"+str(self.id)+" girando hacia los enemigo(s) detectado(s)")
         self.angulo=anguloenemigo
-        if(self.robot.energy() >= 51):
+        if(self.robot.energy() >= 50):
             self.robot.cannon(self.angulo, 100)
 
     def posicionDetector(self, posx, posy, current=None):
@@ -226,7 +198,7 @@ class RobotControllerAtaque(drobots.RobotController, drobotsCoordinados.Coordina
         yrelativo = ydestino - coordenadasactuales.y
         anguloenemigos = int(math.degrees(math.atan2(xrelativo, yrelativo)) % 360.0)
         self.angulo = anguloenemigos
-        if(self.robot.energy() >= 51):
+        if(self.robot.energy() >= 50):
             self.robot.cannon(self.angulo, 100)
 
     def localizacionx(self, current=None):
@@ -244,11 +216,8 @@ class Nodo(Ice.Application):
         
         identity = broker.getProperties().getProperty("Identity")
         factoria = adapter.add(sirviente, broker.stringToIdentity(identity))
-        #proxycontainer = broker.stringToProxy("Container")
-        #container = Services.ContainerPrx.uncheckedCast(proxycontainer)
 
         adapter.activate()
-        #container.link(str(random.randint(1,50)),factoria)
 
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
