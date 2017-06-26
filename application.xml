@@ -3,7 +3,7 @@
 <icegrid>
    <application name="crobots">
       <node name="nododos">
-         <server id="Factoria1" activation="always" exe="./RobotController.py" pwd="/tmp/Distribuidos">
+         <server id="Factoria1" activation="manual" exe="./RobotController.py" pwd="/tmp/Distribuidos">
             <properties>
             </properties>
             <adapter name="FactoriaAdapter" endpoints="tcp" id="${server}.FactoriaAdapter">
@@ -12,7 +12,7 @@
          </server>
       </node>
       <node name="nodotres">
-         <server id="Factoria2" activation="always" exe="./RobotController.py" pwd="/tmp/Distribuidos">
+         <server id="Factoria2" activation="manual" exe="./RobotController.py" pwd="/tmp/Distribuidos">
             <properties>
             </properties>
             <adapter name="FactoriaAdapter" endpoints="tcp" id="${server}.FactoriaAdapter">
@@ -34,14 +34,14 @@
                <object identity="Ruth" type="::drobots::Player" property="Identity"/>
             </adapter>
          </server>
-         <server id="Factoria3" activation="always" exe="./RobotController.py" pwd="/tmp/Distribuidos">
+         <server id="Factoria3" activation="manual" exe="./RobotController.py" pwd="/tmp/Distribuidos">
             <properties>
             </properties>
             <adapter name="FactoriaAdapter" endpoints="tcp" id="${server}.FactoriaAdapter">
                <object identity="RobotFactory3" type="::drobots::Factory" property="Identity"/>
             </adapter>
          </server>
-         <server id="Factoria4" activation="always" exe="./DetectorController.py" pwd="/tmp/Distribuidos">
+         <server id="Factoria4" activation="manual" exe="./DetectorController.py" pwd="/tmp/Distribuidos">
             <properties>
             </properties>
             <adapter name="FactoriaAdapter" endpoints="tcp" id="${server}.FactoriaAdapter">

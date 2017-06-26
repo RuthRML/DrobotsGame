@@ -43,7 +43,7 @@ class RobotControllerBase(drobots.RobotController, drobotsCoordinados.Coordinaci
 
     def turn(self, current=None):
         self.turnos = self.turnos+1
-        self.posicionactual = self.robot.location() # 1 energy
+        self.posicionactual = self.robot.location()
         proxyContainer = current.adapter.getCommunicator().stringToProxy("Robots")
         container = Services.ContainerPrx.checkedCast(proxyContainer)
         async = container.begin_listCoordinar()
@@ -52,8 +52,8 @@ class RobotControllerBase(drobots.RobotController, drobotsCoordinados.Coordinaci
             self.robotDestroyed()
         else:
             print("Robot"+str(self.id)+" escaneando...")
-            if(self.turnos == 0):
-                self.angulo = int(math.degrees(random.randint(0,359)) % 360.0)
+            #if(self.turnos == 0):
+            self.angulo = int(math.degrees(random.randint(0,359)) % 360.0)
             wide = random.randint(1,20)
             robotsencontrados = self.robot.scan(self.angulo, wide) 
             if(robotsencontrados>0):
